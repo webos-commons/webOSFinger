@@ -50,7 +50,6 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 		for(NSDictionary *application in applications)
 		{
 			//	NSLog(@"Open App: %@", [application valueForKey:@"NSApplicationBundleIdentifier"]);
-			//if([[application objectForKey:@"NSApplicationName"] isEqualToString:@"iOS Simulator"])
 			if([[application valueForKey:@"NSApplicationBundleIdentifier"] isEqualToString:@"org.virtualbox.app.VirtualBoxVM"])
 			{
 				pid_t pid = (pid_t)[[application objectForKey:@"NSApplicationProcessIdentifier"] integerValue];
@@ -100,86 +99,63 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 			AXValueGetValue(sizeValue, kAXValueCGSizeType, (void *)&size);
 			
 			NSLog(@"Emulator current size: %d, %d", (int)size.width, (int)size.height);
-			
-			//320,524
-			
+						
 			BOOL supportedSize = NO;
 			BOOL Pre = NO;
 			BOOL Pixi = NO;
-			//BOOL iPadMode = NO;
-			//BOOL landscape = NO;
-			//int iPhoneWidth = 368;
-			//int iPhoneHeight = 716;
-			//int iPadWidth = 852;
-			//int iPadHeight = 1108;
+
 			int PreWidth = 320;
 			int PreHeight = 524;
 			
 			int PixiWidth = 320;
 			int PixiHeight = 444;
-			//498,759
-			
-			//NSPoint newOrigin;				
+				
 			//------
 			//THIS IS WHERE YOU SET THE DEVICE FRAME/LOCATION (0,0)
 			//------
-			if((int)size.width == PreWidth && (int)size.height == PreHeight) {
+			if((int)size.width == PreWidth && (int)size.height == PreHeight)
+			{
 				[hardwareOverlay setContentSize:NSMakeSize(498,759)];
 				[hardwareOverlay setBackgroundColor: [NSColor colorWithPatternImage:[NSImage imageNamed:@"PreFrame"]]];
 				supportedSize = YES;
 				Pre = YES;
 				NSLog(@"Emulator is a Pre.");
-				
-				//newOrigin.x = 0;
-				//newOrigin.y = 0;
-				//[hardwareOverlay setFrameOrigin:newOrigin];
 			}
-			else if((int)size.width == PixiWidth && (int)size.height == PixiHeight) {
-				
+			else if((int)size.width == PixiWidth && (int)size.height == PixiHeight)
+			{
 				[hardwareOverlay setContentSize:NSMakeSize(498,900)];
 				[hardwareOverlay setBackgroundColor: [NSColor colorWithPatternImage:[NSImage imageNamed:@"PixiFrame"]]];
 				supportedSize = YES;
 				Pixi = YES;
 				NSLog(@"Emulator is a Pixi.");
-				
+			
+				//old code to reposition simfinger frame
+				//NSPoint newOrigin;
 				//newOrigin.x = 0;
 				//newOrigin.y = -140;
 				//[hardwareOverlay setFrameOrigin:newOrigin];
 			}
-
 			
-			if(supportedSize) {
+			if(supportedSize)
+			{
 				Boolean settable;
 				AXUIElementIsAttributeSettable(subElement, kAXPositionAttribute, &settable);
 				
 				CGPoint point;
-				//if(!iPadMode) {
-					//if(!landscape) {
 				//------				
 				//THIS IS WHERE YOU SET THE EMULATOR OFFSETS!!!
 				//------
-				if (Pre) {
+				if (Pre)
+				{
 					point.x = 75+9;
 					point.y = screenRect.size.height - size.height - 145;
 				}
-				else if (Pixi) {
+				else if (Pixi)
+				{
 					point.x = 75+9;
 					point.y = screenRect.size.height - size.height - 145;
 				}
-						//point.y = screenRect.size.height - size.height - 135 - 13;
-					//} else {
-					//	point.x = 121+9+4;
-					//	point.y = screenRect.size.height - size.height - 135 - 13 + 4;
-					//}
-				//} else {
-				//	if (!landscape) {
-				//		point.x = 138;
-				//	} else {
-				//		point.x = 157;
-				//	}
-					
-					
-				//}
+				
 				AXValueRef pointValue = AXValueCreate(kAXValueCGPointType, &point);
 				
 				AXUIElementSetAttributeValue(subElement, kAXPositionAttribute, (CFTypeRef)pointValue);
@@ -269,14 +245,14 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-	//634, 985
+	//iphone 634, 985
 	//pre 498,759
-	//hardwareOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 498, 759) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+
 	hardwareOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[hardwareOverlay setAlphaValue:1.0];
 	[hardwareOverlay setOpaque:NO];
-	//[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrame"]]];
-	//[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"PreFrame"]]];
+	//removed so we dont get a flicker when emulator is a pixi
+		//[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"PreFrame"]]];
 	[hardwareOverlay setIgnoresMouseEvents:YES];
 	[hardwareOverlay setLevel:NSFloatingWindowLevel - 1];
 	[hardwareOverlay orderFront:nil];
@@ -292,9 +268,10 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 	[self _updateWindowPosition];
 	[pointerOverlay orderFront:nil];
 	
-	//634, 985
-	//pre 498,759
-	/*fadeOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 0, 0) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+	// this needs to be finished, we changed the sizing of the device frames so we need to fix the fade frames before we can enable this code
+	
+	/*
+	fadeOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 0, 0) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[fadeOverlay setAlphaValue:1.0];
 	[fadeOverlay setOpaque:NO];
 	[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"FadeFrame"]]];
