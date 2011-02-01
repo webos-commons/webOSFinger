@@ -153,7 +153,7 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 				else if (Pixi)
 				{
 					point.x = 75+9;
-					point.y = screenRect.size.height - size.height - 145;
+					point.y = screenRect.size.height - size.height - 365;
 				}
 				
 				AXValueRef pointValue = AXValueCreate(kAXValueCGPointType, &point);
