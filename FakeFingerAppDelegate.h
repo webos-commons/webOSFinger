@@ -33,13 +33,13 @@
 - (IBAction)configurePointerOverlay:(NSMenuItem *)sender;
 - (IBAction)positionSimulatorWindow:(id)sender;
 
-- (IBAction)promptCarrierText:(id)sender;
-- (IBAction)promptTimeText:(id)sender;
-- (IBAction)restoreSpringboardPrefs:(id)sender;
+//- (IBAction)promptCarrierText:(id)sender;
+//- (IBAction)promptTimeText:(id)sender;
+//- (IBAction)restoreSpringboardPrefs:(id)sender;
 
-- (IBAction)cancelSetText:(id)sender;
-- (IBAction)saveSetText:(id)sender;
+//- (IBAction)cancelSetText:(id)sender;
+//- (IBAction)saveSetText:(id)sender;
 
-- (IBAction)installFakeApps:(id)sender;
+//- (IBAction)installFakeApps:(id)sender;
 
 @end

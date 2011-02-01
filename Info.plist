@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2009 © atebits</string>
+	<string>Copyright 2009 © atebits / Modified by Biocandy Labs 2011</string>
+	<key>CFBundleDisplayName</key>
+	<string>SimFinger for webOS</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>

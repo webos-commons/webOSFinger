@@ -49,7 +49,9 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 		
 		for(NSDictionary *application in applications)
 		{
-			if([[application objectForKey:@"NSApplicationName"] isEqualToString:@"iOS Simulator"])
+			//	NSLog(@"Open App: %@", [application valueForKey:@"NSApplicationBundleIdentifier"]);
+			//if([[application objectForKey:@"NSApplicationName"] isEqualToString:@"iOS Simulator"])
+			if([[application valueForKey:@"NSApplicationBundleIdentifier"] isEqualToString:@"org.virtualbox.app.VirtualBoxVM"])
 			{
 				pid_t pid = (pid_t)[[application objectForKey:@"NSApplicationProcessIdentifier"] integerValue];
 				
@@ -65,7 +67,8 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 	} else {
 		NSRunAlertPanel(@"Universal Access Disabled", @"You must enable access for assistive devices in the System Preferences, under Universal Access.", @"OK", nil, nil, nil);
 	}
-	NSRunAlertPanel(@"Couldn't find Simulator", @"Couldn't find iOS Simulator.", @"OK", nil, nil, nil);
+	NSRunAlertPanel(@"Couldn't find Emulator", @"You must have the webOS Emulator running in order to use this application.", @"OK", nil, nil, nil);
+	[NSApp terminate: nil];
 	return NULL;
 }
 
@@ -96,76 +99,87 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 			CGSize size;
 			AXValueGetValue(sizeValue, kAXValueCGSizeType, (void *)&size);
 			
-			NSLog(@"Simulator current size: %d, %d", (int)size.width, (int)size.height);
+			NSLog(@"Emulator current size: %d, %d", (int)size.width, (int)size.height);
+			
+			//320,524
 			
 			BOOL supportedSize = NO;
-			BOOL iPadMode = NO;
-			BOOL landscape = NO;
-			int iPhoneWidth = 368;
-			int iPhoneHeight = 716;
-			int iPadWidth = 852;
-			int iPadHeight = 1108;
+			BOOL Pre = NO;
+			BOOL Pixi = NO;
+			//BOOL iPadMode = NO;
+			//BOOL landscape = NO;
+			//int iPhoneWidth = 368;
+			//int iPhoneHeight = 716;
+			//int iPadWidth = 852;
+			//int iPadHeight = 1108;
+			int PreWidth = 320;
+			int PreHeight = 524;
 			
-			if((int)size.width == iPhoneWidth && (int)size.height == iPhoneHeight) {
-				[hardwareOverlay setContentSize:NSMakeSize(634, 985)];
-				[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrame"]]];
-				
-				[fadeOverlay setContentSize:NSMakeSize(634,985)];
-				[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"FadeFrame"]]];
-				
+			int PixiWidth = 320;
+			int PixiHeight = 444;
+			//498,759
+			
+			//NSPoint newOrigin;				
+			//------
+			//THIS IS WHERE YOU SET THE DEVICE FRAME/LOCATION (0,0)
+			//------
+			if((int)size.width == PreWidth && (int)size.height == PreHeight) {
+				[hardwareOverlay setContentSize:NSMakeSize(498,759)];
+				[hardwareOverlay setBackgroundColor: [NSColor colorWithPatternImage:[NSImage imageNamed:@"PreFrame"]]];
 				supportedSize = YES;
-			} else if((int)size.width == iPhoneHeight && (int)size.height == iPhoneWidth) {
-				[hardwareOverlay setContentSize:NSMakeSize(985,634)];
-				[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrameLandscape_right"]]];
+				Pre = YES;
+				NSLog(@"Emulator is a Pre.");
 				
-				[fadeOverlay setContentSize:NSMakeSize(985,634)];
-				[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"FadeFrameLandscape"]]];
-				
-				supportedSize = YES;
-				landscape = YES;
-			} else if ((int)size.width == iPadWidth && (int)size.height == iPadHeight) {
-				[hardwareOverlay setContentSize:NSMakeSize(1128, 1410)];
-				[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPadFrame"]]];
-				
-				[fadeOverlay setContentSize:NSMakeSize(1128, 1410)];
-				[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPadFade"]]];
-				
-				supportedSize = YES;
-				iPadMode = YES;
-			} else if ((int)size.width == iPadHeight && (int)size.height == iPadWidth) {
-				[hardwareOverlay setContentSize:NSMakeSize(1410, 1128)];
-				[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPadFrameLandscape_right"]]];
-				
-				[fadeOverlay setContentSize:NSMakeSize(1128, 1410)];
-				[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPadFadeLandscape"]]];
-				
-				supportedSize = YES;
-				iPadMode = YES;
-				landscape = YES;
+				//newOrigin.x = 0;
+				//newOrigin.y = 0;
+				//[hardwareOverlay setFrameOrigin:newOrigin];
 			}
+			else if((int)size.width == PixiWidth && (int)size.height == PixiHeight) {
+				
+				[hardwareOverlay setContentSize:NSMakeSize(498,900)];
+				[hardwareOverlay setBackgroundColor: [NSColor colorWithPatternImage:[NSImage imageNamed:@"PixiFrame"]]];
+				supportedSize = YES;
+				Pixi = YES;
+				NSLog(@"Emulator is a Pixi.");
+				
+				//newOrigin.x = 0;
+				//newOrigin.y = -140;
+				//[hardwareOverlay setFrameOrigin:newOrigin];
+			}
+
 			
 			if(supportedSize) {
 				Boolean settable;
 				AXUIElementIsAttributeSettable(subElement, kAXPositionAttribute, &settable);
 				
 				CGPoint point;
-				if(!iPadMode) {
-					if(!landscape) {
-						point.x = 121+9;
-						point.y = screenRect.size.height - size.height - 135 - 13;
-					} else {
-						point.x = 121+9+4;
-						point.y = screenRect.size.height - size.height - 135 - 13 + 4;
-					}
-				} else {
-					if (!landscape) {
-						point.x = 138;
-					} else {
-						point.x = 157;
-					}
-					
-					point.y = screenRect.size.height - size.height - 156;
+				//if(!iPadMode) {
+					//if(!landscape) {
+				//------				
+				//THIS IS WHERE YOU SET THE EMULATOR OFFSETS!!!
+				//------
+				if (Pre) {
+					point.x = 75+9;
+					point.y = screenRect.size.height - size.height - 145;
 				}
+				else if (Pixi) {
+					point.x = 75+9;
+					point.y = screenRect.size.height - size.height - 145;
+				}
+						//point.y = screenRect.size.height - size.height - 135 - 13;
+					//} else {
+					//	point.x = 121+9+4;
+					//	point.y = screenRect.size.height - size.height - 135 - 13 + 4;
+					//}
+				//} else {
+				//	if (!landscape) {
+				//		point.x = 138;
+				//	} else {
+				//		point.x = 157;
+				//	}
+					
+					
+				//}
 				AXValueRef pointValue = AXValueCreate(kAXValueCGPointType, &point);
 				
 				AXUIElementSetAttributeValue(subElement, kAXPositionAttribute, (CFTypeRef)pointValue);
@@ -175,156 +189,6 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
 	}
 }
 
-- (NSString *)iosVersion
-{
-	return @"4.0.2";
-}
-
-- (NSString *)springboardPrefsPath
-{
-	return [[NSString stringWithFormat: @"~/Library/Application Support/iPhone Simulator/%@/Library/Preferences/com.apple.springboard.plist", [self iosVersion]] stringByExpandingTildeInPath];
-}
-
-- (NSMutableDictionary *)springboardPrefs
-{
-	if(!springboardPrefs)
-	{
-		springboardPrefs = [[NSDictionary dictionaryWithContentsOfFile:[self springboardPrefsPath]] mutableCopy];
-		if(!springboardPrefs)
-			springboardPrefs = [[NSMutableDictionary alloc] init];
-	}
-	return springboardPrefs;
-}
-
-- (void)saveSpringboardPrefs
-{
-	NSString *error;
-	NSData *plist = [NSPropertyListSerialization dataFromPropertyList:(id)springboardPrefs
-															   format:kCFPropertyListBinaryFormat_v1_0 
-													 errorDescription:&error];
-	NSLog(@"%@", [self springboardPrefsPath]);
-	[plist writeToFile:[self springboardPrefsPath] atomically:YES];
-}
-
-- (void)restoreSpringboardPrefs
-{
-	[[self springboardPrefs] removeObjectForKey:@"SBFakeTime"];
-	[[self springboardPrefs] removeObjectForKey:@"SBFakeTimeString"];
-	[[self springboardPrefs] removeObjectForKey:@"SBFakeCarrier"];
-	[self saveSpringboardPrefs];
-	NSRunAlertPanel(@"iPhone Simulator Springboard Changed", @"Springboard settings have been restored.  Please restart iPhone Simulator for changes to take effect.", @"OK", nil, nil);
-}
-
-- (void)setSpringboardFakeTime:(NSString *)s
-{
-	[[self springboardPrefs] setObject:[NSNumber numberWithBool:YES] forKey:@"SBFakeTime"];
-	[[self springboardPrefs] setObject:s forKey:@"SBFakeTimeString"];
-	[self saveSpringboardPrefs];
-	NSRunAlertPanel(@"iPhone Simulator Springboard Changed", @"Fake time text has been changed.  Please restart iPhone Simulator for changes to take effect.", @"OK", nil, nil);
-}
-
-- (void)setSpringboardFakeCarrier:(NSString *)s
-{
-	[[self springboardPrefs] setObject:s forKey:@"SBFakeCarrier"];
-	[self saveSpringboardPrefs];
-	NSRunAlertPanel(@"iPhone Simulator Springboard Changed", @"Fake Carrier text has been changed.  Please restart iPhone Simulator for changes to take effect.", @"OK", nil, nil);
-}
-
-enum {
-	SetCarrierMode,
-	SetTimeMode,
-};
-
-- (IBAction)cancelSetText:(id)sender
-{
-	[NSApp stopModal];
-	[setTextPanel orderOut:nil];
-}
-
-- (IBAction)saveSetText:(id)sender
-{
-	switch(setTextMode)
-	{
-		case SetCarrierMode:
-			[self setSpringboardFakeCarrier:[setTextField stringValue]];
-			break;
-		case SetTimeMode:
-			[self setSpringboardFakeTime:[setTextField stringValue]];
-			break;
-	}
-	
-	[NSApp stopModal];
-	[setTextPanel orderOut:nil];
-}
-
-- (IBAction)promptCarrierText:(id)sender
-{
-	setTextMode = SetCarrierMode;
-	[setTextLabel setStringValue:@"Set Fake Carrier Text"];
-	NSString *s = [[self springboardPrefs] objectForKey:@"SBFakeCarrier"];
-	if(s)
-		[setTextField setStringValue:s];
-	[NSApp runModalForWindow:setTextPanel];
-}
-
-- (IBAction)promptTimeText:(id)sender
-{
-	setTextMode = SetTimeMode;
-	[setTextLabel setStringValue:@"Set Fake Time Text"];
-	NSString *s = [[self springboardPrefs] objectForKey:@"SBFakeTimeString"];
-	if(s)
-		[setTextField setStringValue:s];
-	[NSApp runModalForWindow:setTextPanel];
-}
-
-- (IBAction)restoreSpringboardPrefs:(id)sender
-{
-	[self restoreSpringboardPrefs];
-}
-
-- (IBAction)installFakeApps:(id)sender
-{
-	NSError *error;
-	NSArray *items = [NSArray arrayWithObjects:
-					  @"FakeAppStore", 
-					  @"FakeCalculator", 
-					  @"FakeCalendar",
-					  @"FakeCamera",
-					  @"FakeClock",
-                      @"FakeCompass",
-					  @"FakeiPod",
-					  @"FakeiTunes",
-					  @"FakeMail",
-					  @"FakeMaps",
-					  @"FakeNotes",
-					  @"FakePhone",
-					  @"FakeStocks",
-					  @"FakeText",
-                      @"FakeVoiceMemos",
-					  @"FakeWeather",
-					  @"FakeYouTube",
-					  nil];
-	
-	NSString *srcDir = [[NSBundle mainBundle] resourcePath];
-	NSString *dstDir = [[NSString stringWithFormat: @"~/Library/Application Support/iPhone Simulator/%@/Applications", [self iosVersion]] stringByExpandingTildeInPath];
-	[[NSFileManager defaultManager] createDirectoryAtPath:dstDir withIntermediateDirectories:YES attributes:nil error:nil];
-	
-	for(NSString *item in items)
-	{
-		NSString *src = [srcDir stringByAppendingPathComponent:item];
-		NSString *dst = [dstDir stringByAppendingPathComponent:item];
-		
-		[[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
-		if(![[NSFileManager defaultManager] copyItemAtPath:src toPath:dst error:&error])
-		{
-			NSLog(@"copyItemAtPath error %@", error);
-			NSLog(@"src: %@", src);
-			NSLog(@"dst: %@", dst);
-		}
-	}
-	
-	NSRunAlertPanel(@"Fake Apps Installed", @"Fake Apps have been installed in iPhone Simulator.  Please restart iPhone Simulator for changes to take effect.", @"OK", nil, nil);
-}
 
 - (void)_updateWindowPosition
 {
@@ -405,10 +269,14 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-	hardwareOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 634, 985) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+	//634, 985
+	//pre 498,759
+	//hardwareOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 498, 759) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+	hardwareOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[hardwareOverlay setAlphaValue:1.0];
 	[hardwareOverlay setOpaque:NO];
-	[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrame"]]];
+	//[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrame"]]];
+	//[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"PreFrame"]]];
 	[hardwareOverlay setIgnoresMouseEvents:YES];
 	[hardwareOverlay setLevel:NSFloatingWindowLevel - 1];
 	[hardwareOverlay orderFront:nil];
@@ -424,14 +292,16 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 	[self _updateWindowPosition];
 	[pointerOverlay orderFront:nil];
 	
-	fadeOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 634, 985) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+	//634, 985
+	//pre 498,759
+	/*fadeOverlay = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 0, 0) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[fadeOverlay setAlphaValue:1.0];
 	[fadeOverlay setOpaque:NO];
 	[fadeOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"FadeFrame"]]];
 	[fadeOverlay setIgnoresMouseEvents:YES];
 	[fadeOverlay setLevel:NSFloatingWindowLevel + 1];
 	[fadeOverlay orderFront:nil];
-	
+	*/
 	CGEventMask mask =	CGEventMaskBit(kCGEventLeftMouseDown) | 
 						CGEventMaskBit(kCGEventLeftMouseUp) | 
 						CGEventMaskBit(kCGEventLeftMouseDragged) | 
@@ -452,7 +322,7 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 	
 	[self registerForSimulatorWindowResizedNotification];
 	[self positionSimulatorWindow:nil];
-	NSLog(@"Repositioned simulator window.");
+	NSLog(@"Repositioned emulator window.");
 }
 
 @end

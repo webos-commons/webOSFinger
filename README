@@ -1,12 +1,5 @@
-Step 1.
+A fork of SimFinger, from https://github.com/atebits/SimFinger.
 
-For some background, check out:
-http://blog.atebits.com/2009/03/not-your-average-iphone-screencast/
-
-Step 2.
-
-AWESOME SCREENCASTS
-
-Step 3.
-
-Enjoy, fork away, email loren.brichter@atebits.com when you make it moar better and want me to check out your changes.
+This version has been extensively modified for use with webOS devices
+by dawm (Joshua Spohr) and SineOtter (Sine Otter), and has been
+collated by Rod Whitby for release to the webOS community.
